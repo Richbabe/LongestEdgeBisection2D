@@ -169,10 +169,14 @@ CCTDEF int32_t cct_BisectorCount(const cbt_Tree *cbt, const cc_Subd *subd)
  */
 CCTDEF cct_Bisector cct_NodeToBisector(const cbt_Node node, const cc_Subd *subd)
 {
-    const int32_t depth = node.depth - cct__MinCbtDepth(subd);
+    const int32_t depth = static_cast<int32_t>(node.depth) - cct__MinCbtDepth(subd);
     const int32_t bitMask = 1u << node.depth;
 
-    return (cct_Bisector){node.id ^ bitMask, depth};
+    cct_Bisector result;
+    result.id = static_cast<int32_t>(node.id) ^ bitMask;
+    result.depth = depth;
+
+    return result;
 }
 
 
@@ -183,10 +187,14 @@ CCTDEF cct_Bisector cct_NodeToBisector(const cbt_Node node, const cc_Subd *subd)
 static cbt_Node
 cct_BisectorToNode_Fast(const cct_Bisector bisector, const int32_t minCbtDepth)
 {
-    const int32_t depth = bisector.depth + minCbtDepth;
+    const int32_t depth = static_cast<int32_t>(bisector.depth) + minCbtDepth;
     const int32_t bitMask = 1u << depth;
 
-    return (cbt_Node){bisector.id | bitMask, depth};
+    cbt_Node result;
+	result.id = static_cast<int32_t>(bisector.id) | bitMask;
+	result.depth = depth;
+
+	return result;
 }
 CCTDEF cbt_Node cct_BisectorToNode(const cct_Bisector bisector, const cc_Subd *subd)
 {
@@ -253,7 +261,10 @@ cct_DecodeHalfedgeIDs(cct_Bisector bisector, const cc_Subd *subd)
     const int32_t h0 = 4 * halfedgeID + 0;
     const int32_t h1 = 4 * halfedgeID + 2;
     const int32_t h2 = 4 * nextID;
-    cct_BisectorHalfedgeIDs halfedgeIDs = (cct_BisectorHalfedgeIDs){h0, h1, h2};
+    cct_BisectorHalfedgeIDs halfedgeIDs;
+    halfedgeIDs.h0 = h0;
+    halfedgeIDs.h1 = h1;
+    halfedgeIDs.h2 = h2;
     int32_t isEven = true;
 
     for (int32_t bitID = bisector.depth - 1; bitID >= 0; --bitID) {
@@ -296,9 +307,20 @@ cct__BisectNeighborIDs(
                   n2 = neighborIDs.n2;
 
     if (bitValue == 0) {
-        return (cct_BisectorNeighborIDs){2 * n2 + 1, 2 * b + 1, 2 * n0 + 1};
-    } else {
-        return (cct_BisectorNeighborIDs){2 * n1 + 0, 2 * n0 + 0, 2 * b + 0};
+        cct_BisectorNeighborIDs result;
+        result.n0 = 2 * n2 + 1;
+        result.n1 = 2 * b + 1;
+        result.n2 = 2 * n0 + 1;
+
+        return result;
+	}
+	else {
+		cct_BisectorNeighborIDs result;
+		result.n0 = 2 * n1 + 1;
+		result.n1 = 2 * n0 + 0;
+		result.n2 = 2 * b + 0;
+
+		return result;
     }
 }
 
@@ -315,7 +337,10 @@ cct_DecodeNeighborIDs(cct_Bisector bisector, const cc_Subd *subd)
     const int32_t n0 = ccm_HalfedgeTwinID(cage, halfedgeID);
     const int32_t n1 = ccm_HalfedgeNextID(cage, halfedgeID);
     const int32_t n2 = ccm_HalfedgePrevID(cage, halfedgeID);
-    cct_BisectorNeighborIDs neighborIDs = (cct_BisectorNeighborIDs){n0, n1, n2};
+    cct_BisectorNeighborIDs neighborIDs;
+    neighborIDs.n0 = n0;
+    neighborIDs.n1 = n1;
+    neighborIDs.n2 = n2;
 
     for (int32_t bitID = bisector.depth - 1; bitID >= 0; --bitID) {
         const int32_t bisectorID = bisector.id >> bitID;

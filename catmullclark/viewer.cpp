@@ -2322,23 +2322,23 @@ void RenderAdaptiveLod()
  */
 void RenderScene()
 {
-    if (g_mesh.flags.animate) {
-#if 0
-        Animate(1.0f / 60.0f);
+	if (g_mesh.flags.animate) {
+#if 1
+		Animate(1.0f / 60.0f);
 #else
-        static struct timespec lastTime;
-        struct timespec thisTime;
-        double delta;
+		static struct timespec lastTime;
+		struct timespec thisTime;
+		double delta;
 
-        clock_gettime(CLOCK_MONOTONIC, &thisTime);
-        delta = (thisTime.tv_sec - lastTime.tv_sec);
-        delta+= (thisTime.tv_nsec - lastTime.tv_nsec) / 1000000000.0;
+		clock_gettime(CLOCK_MONOTONIC, &thisTime);
+		delta = (thisTime.tv_sec - lastTime.tv_sec);
+		delta += (thisTime.tv_nsec - lastTime.tv_nsec) / 1000000000.0;
 
-        Animate(delta);
+		Animate(delta);
 
-        lastTime = thisTime;
+		lastTime = thisTime;
 #endif
-    }
+	}
 
     djgc_start(g_gl.clocks[CLOCK_ALL]);
     switch (g_mesh.renderer) {
